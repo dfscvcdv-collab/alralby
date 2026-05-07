@@ -1,3 +1,14 @@
+st.markdown(f"""
+    <link rel="manifest" href="https://raw.githubusercontent.com/USERNAME/REPO_NAME/main/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <script>
+    // كود بسيط لتنبيه المستخدم بالتحميل (اختياري)
+    if (window.navigator.standalone === false) {{
+        console.log("هذا الموقع يمكن تثبيته كتطبيق");
+    }}
+    </script>
+""", unsafe_allow_html=True)
 import streamlit as st
 import random
 
@@ -141,7 +152,6 @@ elif st.session_state.stage == 'play':
             st.session_state.clear()
             st.rerun()
 import streamlit as st
-
 st.markdown("""
     <head>
         <meta name="apple-mobile-web-app-capable" content="yes">
