@@ -140,3 +140,13 @@ elif st.session_state.stage == 'play':
         if st.button("🚫 إنهاء ومسح الكل"):
             st.session_state.clear()
             st.rerun()
+import streamlit as st
+
+st.markdown("""
+    <head>
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5610/5610944.png">
+        <title>Alby V1.0</title>
+    </head>
+""", unsafe_allow_html=True)
