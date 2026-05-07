@@ -1,7 +1,7 @@
 import streamlit as st
 import random
 
-# 1. إعداد الصفحة (هذا الأمر يجب أن يكون الأول دائماً)
+# 1. إعدادات الصفحة (لازم تكون أول شيء يستخدم st)
 st.set_page_config(page_title="Alby V1.0", page_icon="🕵️‍♂️")
 
 # 2. كود الـ PWA لجعل الموقع تطبيق (أيقونة وشاشة كاملة)
@@ -50,7 +50,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 4. تهيئة المتغيرات
+# 4. تهيئة المتغيرات (Session State)
 if 'stage' not in st.session_state:
     st.session_state.stage = 'setup'
 if 'player_list' not in st.session_state:
@@ -79,7 +79,7 @@ if st.session_state.stage == 'setup':
                     st.rerun()
 
     if st.session_state.player_list:
-        st.write("### اللاعبين:")
+        st.write("### اللاعبين المضافين:")
         names_html = "".join([f'<div class="player-tag">{name}</div>' for name in st.session_state.player_list])
         st.markdown(names_html, unsafe_allow_html=True)
         
