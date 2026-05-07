@@ -1,32 +1,29 @@
-st.markdown(f"""
-    <link rel="manifest" href="https://raw.githubusercontent.com/USERNAME/REPO_NAME/main/manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <script>
-    // كود بسيط لتنبيه المستخدم بالتحميل (اختياري)
-    if (window.navigator.standalone === false) {{
-        console.log("هذا الموقع يمكن تثبيته كتطبيق");
-    }}
-    </script>
-""", unsafe_allow_html=True)
-
 import streamlit as st
 import random
 
-# 1. إعدادات الصفحة
-st.set_page_config(page_title="لعبة التخمين السرية - المطور", page_icon="🕵️‍♂️")
+# 1. إعدادات "التطبيق" والـ PWA (توضع في البداية تماماً)
+st.set_page_config(page_title="Alby V1.0", page_icon="🕵️‍♂️")
 
-# 2. تهيئة المتغيرات في الذاكرة
-if 'stage' not in st.session_state:
-    st.session_state.stage = 'setup'
-if 'player_list' not in st.session_state:
-    st.session_state.player_list = []
-if 'players_data' not in st.session_state:
-    st.session_state.players_data = []
-if 'current_idx' not in st.session_state:
-    st.session_state.current_idx = 0
+# استبدل USERNAME و REPO_NAME ببياناتك الحقيقية ليعمل الـ manifest
+st.markdown(f"""
+    <head>
+        <link rel="manifest" href="https://raw.githubusercontent.com/USERNAME/REPO_NAME/main/manifest.json">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5610/5610944.png">
+        <title>Alby V1.0</title>
+        <script>
+            // تسجيل الـ Service Worker للعمل بدون إنترنت
+            if ('serviceWorker' in navigator) {{
+                window.addEventListener('load', function() {{
+                    navigator.serviceWorker.register('./sw.js');
+                }});
+            }}
+        </script>
+    </head>
+""", unsafe_allow_html=True)
 
-# 3. تنسيق CSS
+# 2. تنسيق CSS لتحسين شكل التطبيق على الجوال
 st.markdown("""
     <style>
     .main { background-color: #121212; }
@@ -36,6 +33,7 @@ st.markdown("""
         background-color: #6200ee;
         color: white;
         font-weight: bold;
+        height: 3em;
     }
     .secret-box {
         background-color: #1e1e1e;
@@ -43,6 +41,7 @@ st.markdown("""
         border-radius: 20px;
         text-align: center;
         border: 3px solid #03dac6;
+        margin: 10px 0;
     }
     .player-tag {
         background-color: #333;
@@ -53,8 +52,22 @@ st.markdown("""
         border: 1px solid #555;
     }
     h1, h2, h3, p { text-align: center; }
+    /* إخفاء القائمة العلوية لتبدو كتطبيق حقيقي */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
+
+# 3. تهيئة المتغيرات في الذاكرة
+if 'stage' not in st.session_state:
+    st.session_state.stage = 'setup'
+if 'player_list' not in st.session_state:
+    st.session_state.player_list = []
+if 'players_data' not in st.session_state:
+    st.session_state.players_data = []
+if 'current_idx' not in st.session_state:
+    st.session_state.current_idx = 0
 
 # --- المرحلة 1: الإعداد ---
 if st.session_state.stage == 'setup':
@@ -82,7 +95,7 @@ if st.session_state.stage == 'setup':
         names_html = "".join([f'<div class="player-tag">{name}</div>' for name in st.session_state.player_list])
         st.markdown(names_html, unsafe_allow_html=True)
         
-        if st.button("🗑️ مسح قائمة الأسماء نهائياً"):
+        if st.button("🗑️ مسح قائمة الأسماء"):
             st.session_state.player_list = []
             st.rerun()
 
@@ -90,13 +103,11 @@ if st.session_state.stage == 'setup':
     
     if st.button("🚀 ابدأ اللعب"):
         if len(st.session_state.player_list) >= 2:
-            # تحديد النطاق
             if range_choice == "0 - 100": r_min, r_max = 0, 100
             elif range_choice == "0 - 1000": r_min, r_max = 0, 1000
             elif range_choice == "500 - 1000": r_min, r_max = 500, 1000
             else: r_min, r_max = 100, 1000
             
-            # توليد أرقام جديدة للأسماء الموجودة
             st.session_state.players_data = [{"name": name, "number": random.randint(r_min, r_max)} for name in st.session_state.player_list]
             st.session_state.current_idx = 0
             st.session_state.stage = 'distribute'
@@ -133,32 +144,16 @@ elif st.session_state.stage == 'play':
     st.title("🎮 بدأت اللعبة!")
     st.balloons()
     
-    st.write("### كشف الأرقام (للتأكد من المصداقية 🔍):")
-    
-    # عرض الأسماء مع إمكانية كشف الرقم السري
+    st.write("### كشف الأرقام للمصداقية 🔍:")
     for p in st.session_state.players_data:
         with st.expander(f"👤 اللاعب: {p['name']}"):
-            st.write(f"الرقم السري الحقيقي لـ **{p['name']}** هو: `{p['number']}`")
+            st.write(f"الرقم السري لـ **{p['name']}** هو: `{p['number']}`")
 
     st.divider()
     
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🔄 جولة جديدة (نفس الأسماء)"):
-            # نرجع لمرحلة الإعداد بس الأسماء تبقى محفوظة
-            st.session_state.stage = 'setup'
-            st.rerun()
-    with col2:
-        if st.button("🚫 إنهاء ومسح الكل"):
-            st.session_state.clear()
-            st.rerun()
-import streamlit as st
-
-st.markdown("""
-    <head>
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black">
-        <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5610/5610944.png">
-        <title>Alby V1.0</title>
-    </head>
-""", unsafe_allow_html=True)
+    if st.button("🔄 جولة جديدة (نفس الأسماء)"):
+        st.session_state.stage = 'setup'
+        st.rerun()
+    if st.button("🚫 إنهاء ومسح الكل"):
+        st.session_state.clear()
+        st.rerun()
