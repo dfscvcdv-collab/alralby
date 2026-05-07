@@ -9,6 +9,7 @@ st.markdown(f"""
     }}
     </script>
 """, unsafe_allow_html=True)
+
 import streamlit as st
 import random
 
@@ -152,6 +153,7 @@ elif st.session_state.stage == 'play':
             st.session_state.clear()
             st.rerun()
 import streamlit as st
+
 st.markdown("""
     <head>
         <meta name="apple-mobile-web-app-capable" content="yes">
