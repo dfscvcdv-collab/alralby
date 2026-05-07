@@ -1,10 +1,10 @@
 import streamlit as st
 import random
 
-# 1. إعداد الصفحة (يجب أن يكون أول أمر يستخدم st)
+# 1. إعداد الصفحة (هذا الأمر يجب أن يكون الأول دائماً)
 st.set_page_config(page_title="Alby V1.0", page_icon="🕵️‍♂️")
 
-# 2. كود الـ PWA للأيقونة والتشغيل كأنه تطبيق
+# 2. كود الـ PWA لجعل الموقع تطبيق (أيقونة وشاشة كاملة)
 st.markdown("""
     <head>
         <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,7 +14,7 @@ st.markdown("""
     </head>
 """, unsafe_allow_html=True)
 
-# 3. تنسيق التصميم (CSS)
+# 3. تنسيق الشكل (CSS)
 st.markdown("""
     <style>
     .main { background-color: #121212; }
