@@ -1,10 +1,10 @@
 import streamlit as st
 import random
 
-# 1. إعدادات الصفحة (لازم تكون بعد الـ import مباشرة)
+# 1. إعدادات الصفحة - لازم تكون أول سطر برمجي بعد الـ import
 st.set_page_config(page_title="Alby V1.0", page_icon="🕵️‍♂️")
 
-# 2. كود الـ PWA لجعل الموقع تطبيق (أيقونة وشاشة كاملة)
+# 2. كود تحويل الموقع لتطبيق (الأيقونة وشاشة كاملة)
 st.markdown("""
     <head>
         <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,17 +14,7 @@ st.markdown("""
     </head>
 """, unsafe_allow_html=True)
 
-# 3. تهيئة المتغيرات في الذاكرة
-if 'stage' not in st.session_state:
-    st.session_state.stage = 'setup'
-if 'player_list' not in st.session_state:
-    st.session_state.player_list = []
-if 'players_data' not in st.session_state:
-    st.session_state.players_data = []
-if 'current_idx' not in st.session_state:
-    st.session_state.current_idx = 0
-
-# 4. تنسيق CSS للجمالية وشكل الجوال
+# 3. تنسيق الشكل (CSS) ليكون مثل تطبيقات الآيفون الحقيقية
 st.markdown("""
     <style>
     .main { background-color: #121212; }
@@ -34,7 +24,8 @@ st.markdown("""
         background-color: #6200ee;
         color: white;
         font-weight: bold;
-        height: 3em;
+        height: 3.5em;
+        margin-top: 10px;
     }
     .secret-box {
         background-color: #1e1e1e;
@@ -42,20 +33,36 @@ st.markdown("""
         border-radius: 20px;
         text-align: center;
         border: 3px solid #03dac6;
+        margin: 15px 0;
     }
     .player-tag {
         background-color: #333;
-        padding: 5px 15px;
-        border-radius: 20px;
+        padding: 8px 18px;
+        border-radius: 25px;
         margin: 5px;
         display: inline-block;
         border: 1px solid #555;
+        color: white;
     }
     h1, h2, h3, p { text-align: center; }
+    /* إخفاء شعارات ستريمليت لزيادة الواقعية */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
-# --- المرحلة 1: الإعداد ---
+# 4. تهيئة الذاكرة (Session State)
+if 'stage' not in st.session_state:
+    st.session_state.stage = 'setup'
+if 'player_list' not in st.session_state:
+    st.session_state.player_list = []
+if 'players_data' not in st.session_state:
+    st.session_state.players_data = []
+if 'current_idx' not in st.session_state:
+    st.session_state.current_idx = 0
+
+# --- المرحلة 1: إعداد اللاعبين ---
 if st.session_state.stage == 'setup':
     st.title("🕵️‍♂️ إعداد اللعبة")
     
@@ -63,7 +70,7 @@ if st.session_state.stage == 'setup':
     
     col1, col2 = st.columns([4, 1])
     with col1:
-        new_name = st.text_input("أدخل اسم اللاعب:", key="name_input_text", placeholder="اكتب الاسم هنا...")
+        new_name = st.text_input("اسم اللاعب:", key="name_input_text", placeholder="اكتب هنا...")
     with col2:
         st.write("##")
         if st.button("➕"):
@@ -72,21 +79,20 @@ if st.session_state.stage == 'setup':
                     st.session_state.player_list.append(new_name.strip())
                     st.rerun()
                 else:
-                    st.warning("الاسم موجود!")
+                    st.warning("موجود!")
             else:
                 st.error("اكتب اسم!")
 
     if st.session_state.player_list:
-        st.write("### اللاعبين المضافين:")
+        st.write("### اللاعبين:")
         names_html = "".join([f'<div class="player-tag">{name}</div>' for name in st.session_state.player_list])
         st.markdown(names_html, unsafe_allow_html=True)
         
-        if st.button("🗑️ مسح قائمة الأسماء"):
+        if st.button("🗑️ مسح الكل"):
             st.session_state.player_list = []
             st.rerun()
 
     st.divider()
-    
     if st.button("🚀 ابدأ اللعب"):
         if len(st.session_state.player_list) >= 2:
             if range_choice == "0 - 100": r_min, r_max = 0, 100
@@ -99,22 +105,22 @@ if st.session_state.stage == 'setup':
             st.session_state.stage = 'distribute'
             st.rerun()
         else:
-            st.error("أضف شخصين على الأقل!")
+            st.error("أضف شخصين!")
 
 # --- المرحلة 2: توزيع الأرقام ---
 elif st.session_state.stage == 'distribute':
     idx = st.session_state.current_idx
     if idx < len(st.session_state.players_data):
         player = st.session_state.players_data[idx]
-        st.subheader(f"دور اللاعب: {player['name']}")
+        st.subheader(f"دور: {player['name']}")
         st.info(f"عط الجوال لـ {player['name']}")
         
-        if st.checkbox(f"أنا {player['name']}.. عرض الرقم"):
+        if st.checkbox(f"أنا {player['name']} (اضغط للعرض)"):
             st.markdown(f"""
             <div class="secret-box">
-                <p>رقمك السري هو:</p>
-                <h1 style="color: #03dac6; font-size: 50px;">{player['number']}</h1>
-                <p>احفظه ولا تعلم أحد!</p>
+                <p>رقمك السري:</p>
+                <h1 style="color: #03dac6; font-size: 60px;">{player['number']}</h1>
+                <p>لا تعلم أحد!</p>
             </div>
             """, unsafe_allow_html=True)
             
@@ -125,24 +131,16 @@ elif st.session_state.stage == 'distribute':
         st.session_state.stage = 'play'
         st.rerun()
 
-# --- المرحلة 3: شاشة اللعب ---
+# --- المرحلة 3: شاشة كشف الأرقام ---
 elif st.session_state.stage == 'play':
     st.title("🎮 بدأت اللعبة!")
     st.balloons()
     
-    st.write("### كشف الأرقام للمصداقية 🔍:")
     for p in st.session_state.players_data:
-        with st.expander(f"👤 اللاعب: {p['name']}"):
-            st.write(f"الرقم السري الحقيقي لـ **{p['name']}** هو: `{p['number']}`")
+        with st.expander(f"👤 كشف رقم: {p['name']}"):
+            st.write(f"الرقم الحقيقي هو: `{p['number']}`")
 
     st.divider()
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🔄 جولة جديدة"):
-            st.session_state.stage = 'setup'
-            st.rerun()
-    with col2:
-        if st.button("🚫 مسح الكل"):
-            st.session_state.clear()
-            st.rerun()
+    if st.button("🔄 جولة جديدة"):
+        st.session_state.stage = 'setup'
+        st.rerun()
